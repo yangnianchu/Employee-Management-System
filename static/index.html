@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>员工注册</title>
+	<script src="vue.js"></script>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<style>
+		*{
+			padding:0;
+			margin:0;
+		}
+		#head{
+			height: 100px;
+			padding-top: 25px;
+			padding-left:50px;
+			background-color: #409eff;
+			color: #fff;
+			font-size: 24px;
+		}
+		#body{
+			position: absolute;
+			top:355px;
+			left: 50%;
+			transform: translate(-50%,-50%);
+		}
+		.div{
+			text-align: center;
+		}
+		table{
+			position: absolute;
+			top:100%;
+		}
+		.bjs{
+			position: fixed;
+			top:0;
+			bottom: 0;
+			right: 0;
+			left:0;
+			background-color: rgb(0, 0, 0,.3);
+			z-index: 9998;
+		}
+		#tck_a{
+			background-color:#e3e3e3;
+			padding: 20px;
+			border-radius: 10px;
+			position: absolute;
+			top:50%;
+			left:50%;
+			transform: translate(-50%,-50%); 
+		}
+		#tck_a h3,#an{
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<div id="root">
+		<div id="head">
+			<h2>内部员工注册表</h2>
+		</div>
+		<div id="body">
+			<div class="form-group">
+				<label for="username">用户名：</label>
+				<input type="text" id="username" placeholder="请输入姓名" autocomplete="off" class="form-control" v-model="list.username">
+			</div>
+			<div class="form-group">
+				<label for="password">密码：</label>
+				<input type="password" id="password" placeholder="请输入密码" class="form-control" v-model="list.password">
+			</div>
+			<div class="form-group">
+				<label for="name">姓名：</label>
+				<input type="text" id="name" placeholder="请输入姓名" class="form-control" v-model="list.name">
+			</div>
+			<div class="form-group">
+				<label for="age">年龄：</label>
+				<input type="number" id="age" placeholder="请输入年龄" class="form-control" v-model="list.age">
+			</div>
+			<div class="form-group">
+				<label for="sex">性别：</label>
+				<input type="text" id="sex" placeholder="请输入性别" class="form-control" v-model="list.sex">
+			</div>
+			<div class="form-group">
+				<label for="address">住址：</label>
+				<input type="text" id="address" placeholder="请输入住址" class="form-control" v-model="list.address">
+			</div>
+			<div class="form-group div">
+				<button type="submit" id="denglu" class="btn btn-primary">登录</button>
+				<button type="submit" id="submit" class="btn btn-success" @click="zc">注册</button>
+				<button type="submit" id="chaxun" class="btn btn-info" @click="chaxun">查询</button>
+			</div>
+		</div>
+		<table class="table table-striped" id="table">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>用户名</th>
+					<th>密码</th>
+					<th>名字</th>
+					<th>年龄</th>
+					<th>性别</th>
+					<th>住址</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="(item,index) of list" >
+					<td>{{index + 1}}</td>
+					<td>{{item.username}}</td>
+					<td>{{item.password}}</td>
+					<td>{{item.name}}</td>
+					<td>{{item.age}}</td>
+					<td>{{item.sex}}</td>
+					<td>{{item.address}}</td>
+					<td>
+						<button class="btn btn-danger" @click="del(item.id)">删除</button>
+						<button class="btn btn-success" @click="locka(index,item.id)">编辑</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<newtaba v-if="lock" :newlist="list" :newid="id"></newtaba>
+	</div>
+	<script>
+		Vue.component("newtaba",{
+			template:`
+				<div class="bjs">
+					<div id="tck_a">
+						<h3>信息修改</h3>
+						<div class="form-group">
+							<label for="new_username">用户名：</label>
+							<input type="text" placeholder="* 请输入新的用户名" id="new_username" v-model="newlist.username" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="new_password">密码：</label>
+							<input type="namber" placeholder="* 请输入新的登录密码" id="new_password" v-model="newlist.password" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="new_name">姓名：</label>
+							<input type="text" placeholder="* 请输入修改姓名" id="new_name" v-model="newlist.name" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="new_age">年龄：</label>
+							<input type="namber" placeholder="* 请输入年龄" id="new_age" v-model="newlist.age" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="new_sex">性别：</label>
+							<input type="text" placeholder="* 请输入性别" id="new_sex" v-model="newlist.sex" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="new_address">住址：</label>
+							<input type="text" placeholder="* 请输入新的住址" id="new_address" v-model="newlist.address" class="form-control">
+						</div>
+						<div class="form-group" id="an">
+							<input type="button" value="确定" class="btn btn-success" id="yes" @click="yes">
+							<input type="button" value="取消" class="btn btn-default" id="no" @click="no">	
+						</div>	
+					</div>
+				</div>
+			`,
+			props:["newlist","newid"],
+			methods:{
+				no(){
+					root.lock=false;
+					root.chaxun();
+				},
+				yes(){
+					axios.get("http://192.168.1.125:81/yes",{
+						params:{
+							username:this.newlist.username,
+							password:this.newlist.password,
+							name:this.newlist.name,
+							age:this.newlist.age,
+							sex:this.newlist.sex,
+							address:this.newlist.address,
+							id:this.newid
+						}
+					}).then(function(response){
+						if(response.data =="error"){
+							alert("修改失败！");
+						}else{
+							alert("修改成功！");
+							root.chaxun();
+							root.lock=false;
+						}
+					})
+				}
+			}
+		})
+		var root = new Vue({
+			el:"#root",
+			data:{
+				list:{
+					username:"",
+					password:"",
+					name:"",
+					age:"",
+					sex:"",
+					address:""
+				},
+				lock:false,
+				id:""
+			},
+			methods:{
+				zc(){
+					axios.get("http://192.168.1.125:81/addUser",{
+						params:{
+							username:root.list.username,
+							password:root.list.password,
+							name:root.list.name,
+							age:root.list.age,
+							sex:root.list.sex,
+							address:root.list.address
+						}
+					}).then(function(response){
+						if(response.data =="success"){
+							alert("注册成功！")
+							root.chaxun();
+						}else{
+							alert("注册失败！")
+						}
+					})
+				},
+				chaxun(){
+					axios.get("http://192.168.1.125:81/chaxun").then(function(response){
+						root.list=response.data;
+						if(response.data =="error"){
+							alert("查询失败！")
+						}
+					})
+				},
+				del(id){
+					axios.get("http://192.168.1.125:81/delete?id="+id).then(function(response){
+						if(response.data =="error"){
+							alert("删除失败！")
+						}else{
+							alert("删除成功！")
+							root.chaxun();
+						}
+					})
+				},
+				locka(index,id){
+					this.id=id
+					this.list.username=this.list[index].username;
+					this.list.password=this.list[index].password;
+					this.list.name=this.list[index].name;
+					this.list.age=this.list[index].age;
+					this.list.sex=this.list[index].sex;
+					this.list.address=this.list[index].address;
+					this.lock = true;
+				}
+			},
+			mounted(){
+				axios.get("http://192.168.1.125:81/chaxun").then(function(response){
+					root.list = response.data;
+					if(response.data =="error"){
+						alert("查询失败！")
+					}
+				})
+			}
+		})
+	</script>
+</body>
+</html>
